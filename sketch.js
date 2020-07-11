@@ -10,14 +10,14 @@ function setup(){
 
   colorMode(RGB, 255);
   background(255);
-  frameRate(30);
-  }
+  frameRate(60);
+}
 
 function draw(){
   background(255);
   noStroke();
   
-  for(let i=0; i<1; i++) {
+  if (frameCount%15 === 0) {
     array.push(new DrawEllipse());
   }
 
@@ -32,16 +32,15 @@ function draw(){
 class DrawEllipse {
   constructor() {
     this.frame = 0;
+    this.rise = 0;
     this.a = 255;
-    //パステル調にするために，RGBの値を100~255にする。
     this.r = random(155) + 100;
     this.g = random(155) + 100;
     this.b = random(155) + 100;
-    this.x = random(width); //xの位置は0~width(キャンバスの横幅)
-    // this.y = random(height); //yの位置は0~height(キャンバスの縦長)
+    this.x = random(width);
     this.y = height;
-    this.w = random(5, 10); //大きさは20~40
-    this.ym = height/2 + random(height/2)
+    this.w = random(5, 10);
+    this.ym = random(0, height/2)
   }
 
   get getAlpha() {
@@ -63,18 +62,14 @@ class DrawEllipse {
   }
 
   drawEllipse() {
-    this.frame = this.frame + 1
-    if (this.frame < 50) {
-      for (let i=0; i < 30; i++) {
+    this.frame = this.frame + 1;
+    this.rise = 0;
+    for (let i=0; i < 30; i++) {
+      if (!(this.y + i*4 <= this.ym)) {
         this.draw(this.x, this.y + i*4, this.w, this.a - (i*round((255/30))));
       }
-      this.y = this.y - round(this.ym/60);
-    } else {
-      for (let i=0; i < 30; i++) {
-        this.draw(this.x, this.y + i*4, this.w, this.a - (i*round((255/30))));
-      }
-      this.frame = 256
     }
+    this.y = this.y - height/60;
   }
 
   draw(x, y, w, a) {
