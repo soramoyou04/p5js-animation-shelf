@@ -17,15 +17,16 @@ function draw(){
   background(255);
   noStroke();
   
-  if (frameCount%15 === 0) {
+  if (0 === frameCount%15) {
     array.push(new DrawEllipse());
   }
 
   for(let i=0; i<array.length; i++){
     if (array[i].getAlpha < 0 || array[i].getDelete) {
       array = array.filter(n => n !== array[i]);
+    } else if (array[i]) {
+      array[i].drawEllipse();
     }
-    array[i].drawEllipse();
   }
 }
 
@@ -63,12 +64,20 @@ class DrawEllipse {
 
   drawEllipse() {
     this.frame = this.frame + 1;
-    this.rise = 0;
-    for (let i=0; i < 30; i++) {
-      if (!(this.y + i*4 <= this.ym)) {
-        this.draw(this.x, this.y + i*4, this.w, this.a - (i*round((255/30))));
+    
+    if (0 < this.rise && 30 <= (this.frame - this.rise)) {
+      console.log(this.frame - this.rise);
+      this.frame = 256;
+    } else {
+      for (let i=0; i < 30; i++) {
+        if (!(this.y + i*4 <= this.ym)) {
+          this.draw(this.x, this.y + i*4, this.w, this.a - (i*round((255/30))));
+        } else if (0 === this.rise) {
+          this.rise = this.frame
+        }
       }
     }
+
     this.y = this.y - height/60;
   }
 
