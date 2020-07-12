@@ -12,7 +12,6 @@ function setup(){
   canvas.style('z-index','-1');
   colorMode(RGB);
   frameRate(60);
-  gravity = createVector(0,0.4);
 }
 
 function draw(){
@@ -21,7 +20,7 @@ function draw(){
   noStroke();
 
   // 花火を打ち上げる間隔を調整0
-  if (0 === frameCount%30) {
+  if (0 === frameCount%20) {
     fireworks.push(new DrawEllipse());
   }
 
@@ -97,13 +96,13 @@ class DrawEllipse {
     // 残像を制御
     for (let i=30; 0<i; i--) {
       if (this.y - (this.y - height)/i < height) {
-        this.draw(this.x, this.y - (this.y - height)/i, this.w, this.a - (round((64/i))));
+        this.draw(this.x, this.y - (this.y - height)/i, this.w-(this.w-i/2), this.a - (round((32/i))));
       }
     }
 
     // 一定時間経ったら徐々に消す
     if (50 < this.frame) {
-      this.a = this.a - 8;
+      this.a = this.a - 6;
     }
   }
 
