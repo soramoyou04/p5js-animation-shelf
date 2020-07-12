@@ -26,7 +26,7 @@ function draw(){
 
   for(let i=0; i<fireworks.length; i++){
     // 打ち切った花火を処理対象から外す（配列から削除する）
-    if (fireworks[i].getDelete) {
+    if (fireworks[i].getAlpha < 0 || fireworks[i].getDelete) {
       fireworks = fireworks.filter(n => n !== fireworks[i]);
     }
 
@@ -64,6 +64,9 @@ class DrawEllipse {
     this.risingFlg = true;
     this.explosionFlg = false;
     this.frame = 0;
+
+    let speed=1;
+    let gravity=0.2;
   }
 
   get getAlpha() {
@@ -91,23 +94,23 @@ class DrawEllipse {
     this.frame = this.frame + 1;
 
     // 打ち上がるスピード
-    this.y = this.y - (height - this.maxHeight)/80;
+    this.y = this.y - ((height - this.maxHeight)/(100-(20-this.frame)));
 
     // 残像を制御
     for (let i=30; 0<i; i--) {
       if (this.y - (this.y - height)/i < height) {
-        this.draw(this.x, this.y - (this.y - height)/i, this.w-(this.w-i/2), this.a - (round((32/i))));
+        this.update(this.x, this.y - (this.y - height)/i, this.w-(this.w-i/2), this.a - (round((32/i))));
       }
     }
 
     // 一定時間経ったら徐々に消す
-    if (50 < this.frame) {
-      this.a = this.a - 6;
+    if (80 < this.frame) {
+      this.a = this.a - 5;
     }
   }
 
   // 花火を表示する
-  draw(x, y, w, a) {
+  update(x, y, w, a) {
     let c = color(this.r, this.g, this.b);
     c.setAlpha(a);
     fill(c);
