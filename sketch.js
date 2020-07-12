@@ -1,47 +1,70 @@
-// P5.jsの自分のスケッチ My3rdP5_Animation4.js
-
-//canvasを格納する変数の定義
 let canvas;
-let array = [];
+let fireworks = [];
+
+function windowResized() {
+  resizeCanvas(document.documentElement.clientWidth, document.documentElement.clientHeight);
+}
 
 function setup(){
-  canvas = createCanvas(640, 480);
-  canvas.class=("myCanvas");
-
-  colorMode(RGB, 255);
-  background(255);
+  // キャンバスの設定
+  canvas=createCanvas(document.documentElement.clientWidth, document.documentElement.clientHeight);
+  canvas.position(0,0);
+  canvas.style('z-index','-1');
+  colorMode(RGB);
   frameRate(60);
+  gravity = createVector(0,0.4);
 }
 
 function draw(){
-  background(255);
+  // 背景色を設定
+  background(0);
   noStroke();
-  
-  if (0 === frameCount%15) {
-    array.push(new DrawEllipse());
+
+  // 花火を打ち上げる間隔を調整0
+  if (0 === frameCount%30) {
+    fireworks.push(new DrawEllipse());
   }
 
-  for(let i=0; i<array.length; i++){
-    if (array[i].getAlpha < 0 || array[i].getDelete) {
-      array = array.filter(n => n !== array[i]);
-    } else if (array[i]) {
-      array[i].drawEllipse();
+  for(let i=0; i<fireworks.length; i++){
+    // 打ち切った花火を処理対象から外す（配列から削除する）
+    if (fireworks[i].getDelete) {
+      fireworks = fireworks.filter(n => n !== fireworks[i]);
     }
+
+    // 打ち上げアニメーションを呼び出す
+    if (fireworks[i].getRisingFlg) {
+      fireworks[i].drawRising();
+    }
+
+    // 打ち上がったら爆発アニメーションを呼び出す
+    // if (array[i].getExplosionFlg) {
+    // }
   }
 }
 
 class DrawEllipse {
   constructor() {
-    this.frame = 0;
-    this.rise = 0;
-    this.a = 255;
+    // 初期設定 //////////
+    // 花火の色
     this.r = random(155) + 100;
     this.g = random(155) + 100;
     this.b = random(155) + 100;
+    this.a = 255;
+
+    // 初期位置
     this.x = random(width);
     this.y = height;
+
+    // 花火の玉の大きさ
     this.w = random(5, 10);
-    this.ym = random(0, height/2)
+
+    // 花火の高さ
+    this.maxHeight = random(height/8, height/2);
+
+    // 処理で使うためのステータス
+    this.risingFlg = true;
+    this.explosionFlg = false;
+    this.frame = 0;
   }
 
   get getAlpha() {
@@ -52,35 +75,39 @@ class DrawEllipse {
     return this.frame;
   }
 
-  get getDelete() {
-    let flg;
-    if (255 < this.frame) {
-      flg = true;
-    } else {
-      flg = false;
-    }
-    return flg;
+  get getRisingFlg() {
+    return this.risingFlg;
   }
 
-  drawEllipse() {
+  get getExplosionFlg() {
+    return this.explosionFlg;
+  }
+
+  get getDelete() {
+    return 255 < this.frame ? true : false;
+  }
+
+  // 打ち上げアニメーション
+  drawRising() {
     this.frame = this.frame + 1;
-    
-    if (0 < this.rise && 30 <= (this.frame - this.rise)) {
-      console.log(this.frame - this.rise);
-      this.frame = 256;
-    } else {
-      for (let i=0; i < 30; i++) {
-        if (!(this.y + i*4 <= this.ym)) {
-          this.draw(this.x, this.y + i*4, this.w, this.a - (i*round((255/30))));
-        } else if (0 === this.rise) {
-          this.rise = this.frame
-        }
+
+    // 打ち上がるスピード
+    this.y = this.y - (height - this.maxHeight)/80;
+
+    // 残像を制御
+    for (let i=30; 0<i; i--) {
+      if (this.y - (this.y - height)/i < height) {
+        this.draw(this.x, this.y - (this.y - height)/i, this.w, this.a - (round((64/i))));
       }
     }
 
-    this.y = this.y - height/60;
+    // 一定時間経ったら徐々に消す
+    if (50 < this.frame) {
+      this.a = this.a - 8;
+    }
   }
 
+  // 花火を表示する
   draw(x, y, w, a) {
     let c = color(this.r, this.g, this.b);
     c.setAlpha(a);
