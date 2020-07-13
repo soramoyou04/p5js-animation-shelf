@@ -19,8 +19,8 @@ function draw(){
   background(0);
   noStroke();
 
-  // 花火を打ち上げる間隔を調整0
-  if (0 === frameCount%20) {
+  // 花火を打ち上げる間隔を調整
+  if (0 === frameCount%45) {
     fireworks.push(new DrawEllipse());
   }
 
@@ -58,15 +58,12 @@ class DrawEllipse {
     this.w = random(5, 10);
 
     // 花火の高さ
-    this.maxHeight = random(height/8, height/2);
+    this.maxHeight = random(height/4, height/2);
 
     // 処理で使うためのステータス
     this.risingFlg = true;
     this.explosionFlg = false;
     this.frame = 0;
-
-    let speed=1;
-    let gravity=0.2;
   }
 
   get getAlpha() {
@@ -94,7 +91,7 @@ class DrawEllipse {
     this.frame = this.frame + 1;
 
     // 打ち上がるスピード
-    this.y = this.y - ((height - this.maxHeight)/(100-(20-this.frame)));
+    this.y = this.y - (sin(((180-this.frame)/100)*90/90))*((height - this.maxHeight)/100); //  this.y - ((height - this.maxHeight)/(100-(20-this.frame)))
 
     // 残像を制御
     for (let i=30; 0<i; i--) {
@@ -104,7 +101,7 @@ class DrawEllipse {
     }
 
     // 一定時間経ったら徐々に消す
-    if (80 < this.frame) {
+    if (100 < this.frame) {
       this.a = this.a - 5;
     }
   }
