@@ -60,6 +60,15 @@ class DrawEllipse {
     // 花火の高さ
     this.maxHeight = random(height/4, height/2);
 
+    // 花火が打ち上がる速さ
+    this.speed = 90;
+
+    // 残像のズレ
+    this.n = [];
+    for (let i=30; 0<i; i--) {
+      this.n.push(random(-i/2, i/2));
+    }
+
     // 処理で使うためのステータス
     this.risingFlg = true;
     this.explosionFlg = false;
@@ -91,17 +100,17 @@ class DrawEllipse {
     this.frame = this.frame + 1;
 
     // 打ち上がるスピード
-    this.y = this.y - (sin(((180-this.frame)/100)*90/90))*((height - this.maxHeight)/100); //  this.y - ((height - this.maxHeight)/(100-(20-this.frame)))
+    this.y = this.y - (sin((((this.speed*2)-this.frame)/100)*90/this.speed))*((height - this.maxHeight)/100); //  this.y - ((height - this.maxHeight)/(100-(20-this.frame)))
 
     // 残像を制御
     for (let i=30; 0<i; i--) {
       if (this.y - (this.y - height)/i < height) {
-        this.update(this.x, this.y - (this.y - height)/i, this.w-(this.w-i/2), this.a - (round((32/i))));
+        this.update(this.x + this.n[i], this.y - (this.y - height)/i, this.w-(this.w-i/2), this.a - (round((32/i))));
       }
     }
 
     // 一定時間経ったら徐々に消す
-    if (100 < this.frame) {
+    if (this.speed*1.2 < this.frame) {
       this.a = this.a - 5;
     }
   }
