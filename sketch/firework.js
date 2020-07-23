@@ -82,7 +82,7 @@ class FireWork {
     this.explosions = [];
 
     // 爆発までの遅延
-    this.exDelay = random(40, 80);
+    this.exDelay = random(10, 40);
 
     // 爆発の大きさ
     this.large = random(5, 15);
