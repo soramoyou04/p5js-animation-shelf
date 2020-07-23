@@ -81,6 +81,9 @@ class FireWork {
     // 爆発用配列
     this.explosions = [];
 
+    // 爆発までの遅延
+    this.exDelay = random(40, 80);
+
     // 爆発の大きさ
     this.large = random(5, 15);
     // 爆発の玉の数
@@ -136,7 +139,7 @@ class FireWork {
     // 全ての表示が消えたら処理の種類を変更する
     if (0 == this.afterImages.length) {
       if (0 === this.next) {
-        this.next = this.frame + Math.round(random(40, 80));
+        this.next = this.frame + Math.round(this.exDelay);
       } else if (this.next === this.frame) {
         // 花火の大きさ
         for (let i = 0; i < this.ball; i++) {
