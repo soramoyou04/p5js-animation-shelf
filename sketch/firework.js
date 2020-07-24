@@ -13,7 +13,7 @@ function setup() {
   // キャンバスの設定
   canvas = createCanvas(document.documentElement.clientWidth, document.documentElement.clientHeight);
   canvas.position(0, 0);
-  canvas.style('z-index', '-1');
+  canvas.style("z-index", "-1");
   colorMode(RGB);
   frameRate(60);
   this.preStar();
@@ -22,7 +22,7 @@ function setup() {
 function draw() {
   // 背景色を設定
   setGradient(0, 0, width, height, color(0, 0, 0), color(24, 32, 72), Y_AXIS);
-  // background(0);
+  // background(255);
   noStroke();
 
   // 星を描く
@@ -38,7 +38,7 @@ function draw() {
   for (let fw of fireworks) {
     // 打ち切った花火を処理対象から外す（配列から削除する）
     if (2 === fw.getType || 30000 < fw.getFrame) {
-      fireworks = fireworks.filter(n => n !== fw);
+      fireworks = fireworks.filter((n) => n !== fw);
       continue;
     }
 
@@ -69,7 +69,7 @@ class FireWork {
 
     // 打ち上がる高さ
     this.maxHeight = random(height / 6, height / 2);
-    this.fireHeight = (height - this.maxHeight)
+    this.fireHeight = height - this.maxHeight;
 
     // 重力
     this.vx = vx;
@@ -81,9 +81,8 @@ class FireWork {
     // 爆発用配列
     this.explosions = [];
 
-    // 爆発までの遅延
+    // 消えてから爆発までの遅延時間
     this.exDelay = random(10, 40);
-
     // 爆発の大きさ
     this.large = random(5, 15);
     // 爆発の玉の数
@@ -102,7 +101,9 @@ class FireWork {
     return this.type;
   }
 
+  // 処理コントロール
   fire() {
+    // 0:打ち上げ（初期） 1:爆発
     switch (this.type) {
       case 0:
         this.rising();
@@ -127,10 +128,11 @@ class FireWork {
     // 残像を表示
     this.afterImages.push(new Afterimage(this.r, this.g, this.b, this.x, this.y, this.w, this.a));
     for (let ai of this.afterImages) {
-      ai.image();
       if (ai.getAlpha <= 0) {
-        this.afterImages = this.afterImages.filter(n => n !== ai);
+        this.afterImages = this.afterImages.filter((n) => n !== ai);
+        continue;
       }
+      ai.rsImage();
     }
 
     // 打ち上げ表示
@@ -139,19 +141,25 @@ class FireWork {
     // 全ての表示が消えたら処理の種類を変更する
     if (0 == this.afterImages.length) {
       if (0 === this.next) {
+        // 消えてから爆発まで遅延させる
         this.next = this.frame + Math.round(this.exDelay);
       } else if (this.next === this.frame) {
         // 花火の大きさ
         for (let i = 0; i < this.ball; i++) {
           // 爆発の角度
           let r = random(0, 360);
-          // 爆発の広がり
-          let s = random(0.1, 1);
-          let vx = Math.cos(r * Math.PI / 180) * s * this.large;
-          let vy = Math.sin(r * Math.PI / 180) * s * this.large;
-          // 爆発用の火玉を格納
+          // 花火の内側を作る（バラバラ）
+          let s = random(0.1, 0.9);
+          let vx = Math.cos((r * Math.PI) / 180) * s * this.large;
+          let vy = Math.sin((r * Math.PI) / 180) * s * this.large;
           this.explosions.push(new FireWork(this.x, this.y, vx, vy, this.exStop));
+          // 花火の輪郭を作る（丸くなるようにする）
+          let cs = random(0.9, 1);
+          let cvx = Math.cos((r * Math.PI) / 180) * cs * this.large;
+          let cvy = Math.sin((r * Math.PI) / 180) * cs * this.large;
+          this.explosions.push(new FireWork(this.x, this.y, cvx, cvy, this.exStop));
         }
+        this.a = 255;
         this.type = 1;
       }
     }
@@ -159,13 +167,11 @@ class FireWork {
 
   // 爆発アニメーション
   explosion() {
-
-
     for (let ex of this.explosions) {
       ex.frame++;
       // 爆発し終わった花火を配列から除去する
       if (2 === ex.getType) {
-        this.explosions = this.explosions.filter(n => n !== ex);
+        this.explosions = this.explosions.filter((n) => n !== ex);
         continue;
       }
 
@@ -176,10 +182,10 @@ class FireWork {
 
       for (let ai of ex.afterImages) {
         if (ai.getAlpha < 0) {
-          ex.afterImages = ex.afterImages.filter(n => n !== ai);
+          ex.afterImages = ex.afterImages.filter((n) => n !== ai);
           continue;
         }
-        ai.stay();
+        ai.exImage();
       }
 
       // 爆発を描画
@@ -188,10 +194,10 @@ class FireWork {
       ex.y += ex.vy;
       ex.vx = ex.vx * ex.gv;
       ex.vy = ex.vy * ex.gv;
-      // ex.vy = ex.vy + (ex.gv / 100);
+      ex.vy = ex.vy + ex.gv / 30;
       if (this.exend < ex.frame) {
         ex.w -= 0.1;
-        ex.a = ex.a - 6;
+        ex.a = ex.a - 4;
         if (ex.a < 0 && 0 === ex.afterImages.length) {
           ex.type = 2;
         }
@@ -202,14 +208,16 @@ class FireWork {
   // 花火を表示する
   update(x, y, w, a) {
     this.frame++;
-
-    let c = color(this.r, this.g, this.b);
-    c.setAlpha(a);
-    fill(c);
-    ellipse(x, y, w, w);
+    if (0 < this.a) {
+      let c = color(this.r, this.g, this.b);
+      c.setAlpha(a);
+      fill(c);
+      ellipse(x, y, w, w);
+    }
   }
 }
 
+// 残像処理用クラス
 class Afterimage {
   constructor(r, g, b, x, y, w, a) {
     this.frame = 0;
@@ -229,31 +237,35 @@ class Afterimage {
     return this.a;
   }
 
-  image() {
-    this.update(this.r, this.g, this.b, this.x, this.y, this.w, this.a);
-    this.r += 4;
-    this.g += 4;
-    this.b += 4;
-    this.x = this.x + this.vx;
-    this.y = this.y + this.vy;
-    if (0 < this.w) {
-      this.w = this.w - this.vw;
-    }
-    this.a = this.a - 4;
-  }
-
-  stay() {
+  // 打ち上げ用
+  rsImage() {
     if (0 < this.a) {
       this.update(this.r, this.g, this.b, this.x, this.y, this.w, this.a);
-      this.r += 2;
-      this.g += 2;
-      this.b += 2;
+      this.r += 4;
+      this.g += 4;
+      this.b += 4;
       this.x = this.x + this.vx;
       this.y = this.y + this.vy;
       if (0 < this.w) {
         this.w = this.w - this.vw;
       }
-      this.a = this.a - 2;
+      this.a = this.a - 4;
+    }
+  }
+
+  // 爆発用
+  exImage() {
+    if (0 < this.a) {
+      this.update(this.r, this.g, this.b, this.x, this.y, this.w, this.a);
+      this.r += 2.5;
+      this.g += 2.5;
+      this.b += 2.5;
+      this.x = this.x + this.vx;
+      this.y = this.y + this.vy;
+      if (0 < this.w) {
+        this.w = this.w - this.vw;
+      }
+      this.a = this.a - 1.5;
     }
   }
 
