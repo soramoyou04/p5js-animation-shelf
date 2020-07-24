@@ -154,9 +154,10 @@ class FireWork {
           let vy = Math.sin((r * Math.PI) / 180) * s * this.large;
           this.explosions.push(new FireWork(this.x, this.y, vx, vy, this.exStop));
           // 花火の輪郭を作る（丸くなるようにする）
+          let cr = random(0, 360);
           let cs = random(0.9, 1);
-          let cvx = Math.cos((r * Math.PI) / 180) * cs * this.large;
-          let cvy = Math.sin((r * Math.PI) / 180) * cs * this.large;
+          let cvx = Math.cos((cr * Math.PI) / 180) * cs * this.large;
+          let cvy = Math.sin((cr * Math.PI) / 180) * cs * this.large;
           this.explosions.push(new FireWork(this.x, this.y, cvx, cvy, this.exStop));
         }
         this.a = 255;
