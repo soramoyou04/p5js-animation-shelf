@@ -88,7 +88,7 @@ class FireWork {
     // 爆発の玉の数
     this.ball = random(20, 100);
     // 爆発から消えるまでの長さ
-    this.exend = random(20, 40);
+    this.exEnd = random(20, 40);
     // 爆発のブレーキ
     this.exStop = 0.96;
   }
@@ -196,7 +196,7 @@ class FireWork {
       ex.vx = ex.vx * ex.gv;
       ex.vy = ex.vy * ex.gv;
       ex.vy = ex.vy + ex.gv / 30;
-      if (this.exend < ex.frame) {
+      if (this.exEnd < ex.frame) {
         ex.w -= 0.1;
         ex.a = ex.a - 4;
         if (ex.a < 0 && 0 === ex.afterImages.length) {
